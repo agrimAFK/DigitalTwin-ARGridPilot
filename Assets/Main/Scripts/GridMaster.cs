@@ -247,22 +247,34 @@ public class GridMaster : MonoBehaviour
         moveRoutine = StartCoroutine(SmoothMove(locations[targetTile]));
     }
 
+    [SerializeField] float spinsPerMove = 1f;   // number of full 360° turns per move
+
     IEnumerator SmoothMove(Vector3 targetLocalPos)
     {
         if (robotObject == null) yield break;
 
-        Vector3 start = robotObject.transform.localPosition;
+        Vector3 startPos = robotObject.transform.localPosition;
         float time = 0f;
 
         while (time < moveDuration)
         {
             time += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, time / moveDuration);
-            robotObject.transform.localPosition = Vector3.Lerp(start, targetLocalPos, t);
+
+            // --- Movement ---
+            robotObject.transform.localPosition = Vector3.Lerp(startPos, targetLocalPos, t);
+
+            // --- Rotation ---
+            float totalDegrees = spinsPerMove * 360f;     // total rotation for whole movement
+            float currentDegrees = totalDegrees * Time.deltaTime / moveDuration;
+            robotObject.transform.Rotate(Vector3.up, currentDegrees, Space.Self);
+
             yield return null;
         }
 
         robotObject.transform.localPosition = targetLocalPos;
+
         HighlightCurrentMoveableRegions();
     }
+
 }

@@ -62,6 +62,8 @@ public class PlaceGrid_AR : MonoBehaviour
             else
             {
                 placedGrid = Instantiate(gridPrefab, pos, rot);
+                SetScale(0.6f);
+
             }
             return;
         }
