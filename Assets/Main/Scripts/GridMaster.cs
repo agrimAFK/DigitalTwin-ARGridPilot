@@ -12,13 +12,26 @@ public class GridMaster : MonoBehaviour
     public GameObject robotObject;
     public float cellSize = 1f;
     public float padding = 0.2f;
-    public int Length = 3;
+    public int Length = 2;
     public int currentRobotTile = 0;
 
     private int _centerTileIndex;
     private Vector3[] locations;
     private GameObject[] grid;
 
+    public static GridMaster Instance { get; private set; }
+
+    void Awake()
+    {
+        Instance = this;
+
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
     void Start()
     {
         SpawnGrid();
@@ -99,6 +112,8 @@ public class GridMaster : MonoBehaviour
                 TryMoveTo(index);
         }
     }
+
+
 
     public bool TryMoveTo(int targetIndex)
     {
