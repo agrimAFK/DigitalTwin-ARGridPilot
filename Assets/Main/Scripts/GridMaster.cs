@@ -18,6 +18,7 @@ public class GridMaster : MonoBehaviour
     private int _centerTileIndex;
     private Vector3[] locations;
     private GameObject[] grid;
+    [SerializeField] private float highlightDelay = 0.25f;
 
     public static GridMaster Instance { get; private set; }
 
@@ -137,13 +138,31 @@ public class GridMaster : MonoBehaviour
         return true;
     }
 
-    void HighlightCurrentMoveableRegions()
+    void HighlightCurrentMoveableRegions(float delay)
     {
+        StartCoroutine(HighlightAfterDelay(delay));
+    }
+
+    IEnumerator HighlightAfterDelay(float delay)
+    {
+        if (highlightDelay > 0f)
+            yield return new WaitForSeconds(delay);
+
         for (int i = 0; i < Length * Length; i++)
         {
             SetMaterial(grid[i], IsInMovableRange(i, currentRobotTile));
         }
     }
+
+    void TurnOffGridColor()
+    {
+        for (int i = 0; i < Length * Length; i++)
+        {
+            SetMaterial(grid[i], false);
+
+        }
+    }
+
 
     bool IsInMovableRange(int locationToMove, int currentlocation)
     {
@@ -238,7 +257,7 @@ public class GridMaster : MonoBehaviour
         }
 
         robotObject.transform.localPosition = locations[currentRobotTile];
-        HighlightCurrentMoveableRegions();
+        HighlightCurrentMoveableRegions(highlightDelay);
     }
 
     void ReCalculatePostion()
@@ -300,6 +319,7 @@ public class GridMaster : MonoBehaviour
             : startRot;
 
         float time = 0f;
+        TurnOffGridColor();
 
         while (time < moveDuration)
         {
@@ -313,11 +333,10 @@ public class GridMaster : MonoBehaviour
 
             yield return null;
         }
-
+        HighlightCurrentMoveableRegions(highlightDelay);
         robotObject.transform.localPosition = targetLocalPos;
         robotObject.transform.localRotation = targetRot;
 
-        HighlightCurrentMoveableRegions();
 
         SetWalking(false); // stop walking anim
     }
