@@ -331,7 +331,7 @@ public class GridMaster : MonoBehaviour
         while (time < moveDuration)
         {
             // pulse animation (sin wave)
-            float pulse = 1f + Mathf.Sin(Time.time * 8f) * 0.15f;
+            float pulse = 1.05f + Mathf.Sin(Time.time * 8f) * 0.15f;
             targetGridTile.transform.localScale = originalScale * pulse;
 
             time += Time.deltaTime;
