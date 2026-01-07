@@ -18,9 +18,10 @@ public class CameraMoveScript : MonoBehaviour
     private float pitch;
     private bool isLooking;
 
-    private Vector3 travelDirection;
-    private float travelSpeed;
-    private float travelTimeRemaining;
+    // Ease-in travel state
+    private Vector3 travelStartPosition;
+    private Vector3 travelEndPosition;
+    private float travelElapsed;
 
     void Start()
     {
@@ -29,10 +30,10 @@ public class CameraMoveScript : MonoBehaviour
 
         pitch = transform.eulerAngles.x;
 
-        // Initialize backward travel
-        travelDirection = -transform.forward.normalized;
-        travelSpeed = travelDistance / travelDuration;
-        travelTimeRemaining = travelDuration;
+        // Initialize ease-in backward travel
+        travelStartPosition = transform.position;
+        travelEndPosition = transform.position - transform.forward.normalized * travelDistance;
+        travelElapsed = 0f;
     }
 
     void Update()
@@ -46,14 +47,21 @@ public class CameraMoveScript : MonoBehaviour
 
     private void HandleStartTravel()
     {
-        if (travelTimeRemaining <= 0f)
+        if (travelElapsed >= travelDuration)
             return;
 
-        float delta = Time.deltaTime;
-        float step = Mathf.Min(delta, travelTimeRemaining);
+        travelElapsed += Time.deltaTime;
 
-        transform.position += travelDirection * travelSpeed * step;
-        travelTimeRemaining -= step;
+        float t = Mathf.Clamp01(travelElapsed / travelDuration);
+
+        // Ease-in (slow → fast)
+        float easedT = t * t;
+
+        transform.position = Vector3.Lerp(
+            travelStartPosition,
+            travelEndPosition,
+            easedT
+        );
     }
 
     private void UpdateLookState()
