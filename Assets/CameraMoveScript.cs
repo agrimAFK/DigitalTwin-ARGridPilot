@@ -11,8 +11,16 @@ public class CameraMoveScript : MonoBehaviour
     [SerializeField] private float minPitch = -80f;
     [SerializeField] private float maxPitch = 80f;
 
+    [Header("Start Travel")]
+    [SerializeField] private float travelDistance = 5f;   // X
+    [SerializeField] private float travelDuration = 2f;   // Y
+
     private float pitch;
     private bool isLooking;
+
+    private Vector3 travelDirection;
+    private float travelSpeed;
+    private float travelTimeRemaining;
 
     void Start()
     {
@@ -20,13 +28,32 @@ public class CameraMoveScript : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
 
         pitch = transform.eulerAngles.x;
+
+        // Initialize backward travel
+        travelDirection = -transform.forward.normalized;
+        travelSpeed = travelDistance / travelDuration;
+        travelTimeRemaining = travelDuration;
     }
 
     void Update()
     {
+        HandleStartTravel();
+
         UpdateLookState();
         HandleMouseLook();
         HandleMovement();
+    }
+
+    private void HandleStartTravel()
+    {
+        if (travelTimeRemaining <= 0f)
+            return;
+
+        float delta = Time.deltaTime;
+        float step = Mathf.Min(delta, travelTimeRemaining);
+
+        transform.position += travelDirection * travelSpeed * step;
+        travelTimeRemaining -= step;
     }
 
     private void UpdateLookState()
